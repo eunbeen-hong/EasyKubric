@@ -91,3 +91,4 @@ from kubric.utils import process_collisions
 from kubric.utils import setup
 from kubric.utils import setup_directories
 from kubric.utils import setup_logging
+from kubric.utils import get_randomness_metadata

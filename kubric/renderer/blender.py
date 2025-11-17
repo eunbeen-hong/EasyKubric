@@ -50,6 +50,7 @@ class Blender(core.View):
                verbose: bool = False,
                custom_scene: Optional[str] = None,
                motion_blur: Optional[float] = None,
+               gpu_tile_size: int = 256,
                ):
     """
     Args:
@@ -80,6 +81,7 @@ class Blender(core.View):
     self.bg_hdri_node = None
     self.bg_mapping_node = None
     self.verbose = verbose
+    self.gpu_tile_size = gpu_tile_size
 
     # blender has a default scene on load, so we clear everything first
     self.clear_and_reset_blender_scene(self.verbose, custom_scene=custom_scene)
@@ -125,6 +127,10 @@ class Blender(core.View):
         "ambient_illumination": [lambda change: self._set_ambient_light_color(change.new)],
         "background": [lambda change: self._set_background_color(change.new)],
     })
+    
+    if self.use_gpu:
+      self._enable_gpu()
+      logger.info("Using GPU for rendering.")
 
   @property
   def scratch_dir(self) -> Union[PathLike, None]:
@@ -202,6 +208,14 @@ class Blender(core.View):
     else:
       self.exr_output_node.mute = False
       self.exr_output_node.base_path = str(path_prefix)
+      
+  def set_motion_blur(self, motion_blur):
+    """Set the motion blur shutter time (in frames).
+
+    If motion_blur is None or 0, then motion blur is disabled.
+    """
+    self.exr_output_node = blender_utils.set_up_exr_output_node(motion_blur=motion_blur)
+    
 
   def save_state(self, path: PathLike, pack_textures: bool = True):
     """Saves the '.blend' blender file to disk.
@@ -235,6 +249,44 @@ class Blender(core.View):
     logger.info("Saving '%s'", path)
     tf.io.gfile.copy(tmp_path, path, overwrite=True)
 
+  def _enable_gpu(self):
+    print(f"[INFO] Using GPU for rendering.")
+
+    bpy.context.scene.render.engine = "CYCLES"                     # :contentReference[oaicite:1]{index=1}
+    bpy.context.scene.cycles.device = "GPU"                       # :contentReference[oaicite:2]{index=2}
+
+    device_type = os.getenv("KUBRIC_CYCLES_DEVICE_TYPE", "CUDA")
+
+    prefs = bpy.context.preferences.addons["cycles"].preferences
+    avail = {t[0] for t in prefs.get_device_types(bpy.context)}
+    for t in ["OPTIX", "CUDA", "HIP", "ONEAPI", "METAL"]:
+        if t in avail:
+            prefs.compute_device_type = t
+            print(f"[INFO] Using {t} for rendering.")
+            break
+
+    for t in avail:
+        prefs.get_devices_for_type(t)
+
+    for d in prefs.devices:
+        d.use = (d.type == prefs.compute_device_type)
+        if d.use:
+            print(f"[INFO] Using device: {d.name}")
+    # bpy.context.scene.render.engine = "CYCLES"
+    # bpy.context.scene.cycles.device = "GPU"
+
+    # prefs = bpy.context.preferences.addons["cycles"].preferences
+    # prefs.compute_device_type = device_type.upper()               # :contentReference[oaicite:3]{index=3}
+
+    # for d_type in prefs.get_device_types(bpy.context):            # :contentReference[oaicite:4]{index=4}
+    #     prefs.get_devices_for_type(d_type[0])
+    # for d in prefs.devices:
+    #     d.use = True                                              # :contentReference[oaicite:5]{index=5}
+
+    # Optional. rendering하는 resolution이랑 메모리 크기에 맞게 조절해서 쓰시면 됩니다
+    bpy.context.scene.cycles.tile_x = self.gpu_tile_size
+    bpy.context.scene.cycles.tile_y = self.gpu_tile_size   
+    
   def render(self,
              frames: Optional[Sequence[int]] = None,
              ignore_missing_textures: bool = False,
@@ -336,6 +388,7 @@ class Blender(core.View):
                   for exr_filename in exr_frames]
 
     for exr_filename, png_filename in zip(exr_frames, png_frames):
+      logger.info(f"Post-processing '{png_filename}...'")
       source_layers = blender_utils.get_render_layers_from_exr(exr_filename)
       # Use the contrast-normalized PNG instead of the EXR for RGBA.
       source_layers["rgba"] = file_io.read_png(png_filename)

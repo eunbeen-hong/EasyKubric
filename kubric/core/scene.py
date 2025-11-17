@@ -70,6 +70,7 @@ class Scene(tl.HasTraits):
     self._assets = []
     self._views = []
     self.metadata = {}
+    self.randomness = {}
     super().__init__(frame_start=frame_start, frame_end=frame_end, frame_rate=frame_rate,
                      step_rate=step_rate, resolution=resolution, gravity=gravity, camera=camera,
                      ambient_illumination=ambient_illumination, background=background)

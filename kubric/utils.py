@@ -45,28 +45,28 @@ class ArgumentParser(argparse_flags.ArgumentParser):
     super().__init__(*args, **kwargs)
 
     # --- default arguments for kubric
-    self.add_argument("--frame_rate", type=int, default=24,
-                      help="number of rendered frames per second (default: 24)")
-    self.add_argument("--step_rate", type=int, default=240,
-                      help="number of simulation steps per second. "
-                           "Has to be an integer multiple of --frame_rate (default: 240)")
-    self.add_argument("--frame_start", type=int, default=1,
-                      help="index of the first frame to render. "
-                           "Note that simulation always starts at frame 0 (default: 1)")
-    self.add_argument("--frame_end", type=int, default=24,
-                      help="index of the last frame to render (default: 24)")
+    # self.add_argument("--frame_rate", type=int, default=24,
+    #                   help="number of rendered frames per second (default: 24)")
+    # self.add_argument("--step_rate", type=int, default=240,
+    #                   help="number of simulation steps per second. "
+    #                        "Has to be an integer multiple of --frame_rate (default: 240)")
+    # self.add_argument("--frame_start", type=int, default=1,
+    #                   help="index of the first frame to render. "
+    #                        "Note that simulation always starts at frame 0 (default: 1)")
+    # self.add_argument("--frame_end", type=int, default=24,
+    #                   help="index of the last frame to render (default: 24)")
     self.add_argument("--logging_level", type=str, default="INFO")
-    self.add_argument("--seed", type=int, default=None,
-                      help="(int) seed for random sampling in the worker (default: None)")
-    self.add_argument("--resolution", type=str, default="512x512",
-                      help="height and width of rendered image/video in pixels"
-                           "Can be given as single number for square images or "
-                           "in the form {height}x{width}. (default: 512x512)")
+    # self.add_argument("--seed", type=int, default=None,
+    #                   help="(int) seed for random sampling in the worker (default: None)")
+    # self.add_argument("--resolution", type=str, default="512x512",
+    #                   help="height and width of rendered image/video in pixels"
+    #                        "Can be given as single number for square images or "
+    #                        "in the form {height}x{width}. (default: 512x512)")
     self.add_argument("--scratch_dir", type=str, default=tempfile.mkdtemp(),
                       help="local directory for storing intermediate files such as "
                            "downloaded assets, raw output of renderer, ... (default: temp dir)")
-    self.add_argument("--job-dir", type=str, default="output",
-                      help="target directory for storing the worker output (default: ./output)")
+    # self.add_argument("--job-dir", type=str, default="output",
+    #                   help="target directory for storing the worker output (default: ./output)")
 
   def parse_args(self, args=None, namespace=None):
     # --- parse argument in a way compatible with blender REPL
@@ -139,6 +139,11 @@ def get_scene_metadata(scene, **kwargs):
   }
   metadata.update(scene.metadata)
   metadata.update(kwargs)
+  return metadata
+
+def get_randomness_metadata(scene):
+  metadata = dict()
+  metadata.update(scene.randomness)
   return metadata
 
 

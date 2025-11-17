@@ -1,0 +1,16 @@
+{
+  "min_num_static_objects": 1,
+  "max_num_static_objects": 3,
+  "min_num_dynamic_objects": 5,
+  "max_num_dynamic_objects": 10,
+  "camera": "linear_movement_linear_lookat",
+  "max_camera_movement": 8.0,
+  "max_motion_blur": 0.0,
+  "frame_rate": 48,
+  "step_rate": 240,
+  "frame_start": 1,
+  "frame_end": 96,
+  "resolution": "512x512",
+  "min_amb_light": 0.01,
+  "max_amb_light": 1.0
+}
