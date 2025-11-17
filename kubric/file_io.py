@@ -25,6 +25,7 @@ import imageio
 import numpy as np
 import png
 import tensorflow as tf
+from pathlib import Path
 
 from kubric import plotting
 from kubric.kubric_typing import PathLike
@@ -115,6 +116,24 @@ def write_png(data: np.array, filename: PathLike) -> None:
   data = data.reshape(height, -1)
   with gopen(filename, "wb") as fp:
     w.write(fp, data)
+
+def write_raw_flow(data: np.array, filename: PathLike) -> None:
+    """
+    Save optical flow as raw binary (.npy) without precision loss.
+    The filename can end with .npy or .npz; the function auto-handles both.
+    """
+    assert data.ndim == 3 and data.shape[-1] == 2, f"Expected (H, W, 2), got {data.shape}"
+
+    filename = Path(filename)
+    filename.parent.mkdir(parents=True, exist_ok=True)
+
+    if filename.suffix == ".npz":
+        np.savez_compressed(filename, flow=data.astype(np.float32))
+    elif filename.suffix == ".npy":
+        np.save(filename, data.astype(np.float32))
+    else:
+        # Default to .npy if user didn’t specify an extension
+        np.save(str(filename) + ".npy", data.astype(np.float32))
 
 
 def write_palette_png(data: np.array, filename: PathLike,
@@ -289,10 +308,12 @@ def write_flow_batch(data, directory, file_template="flow_{:05d}.png", name="flo
   min_value = np.min(data)
   max_value = np.max(data)
   scaling = {"min": min_value.item(), "max": max_value.item()}
-  data = (data - min_value) * 65535 / (max_value - min_value)
-  data = data.astype(np.uint16)
-  multi_write_image(data, path_template, write_fn=write_png,
+  # data = (data - min_value) * 65535 / (max_value - min_value)
+  # data = data.astype(np.uint16)
+  multi_write_image(data, path_template, write_fn=write_raw_flow,
                     max_write_threads=max_write_threads)
+  # multi_write_image(data, path_template, write_fn=write_png,
+  #                   max_write_threads=max_write_threads)
 
   if range_file_path.exists():
     ranges = read_json(range_file_path)
@@ -307,6 +328,11 @@ write_forward_flow_batch = functools.partial(write_flow_batch, name="forward_flo
 write_backward_flow_batch = functools.partial(write_flow_batch, name="backward_flow",
                                               file_template="backward_flow_{:05d}.png")
 
+write_forward_flow_batch_raw = functools.partial(write_flow_batch, name="forward_flow",
+                                             file_template="forward_flow_{:05d}.npy")
+write_backward_flow_batch_raw = functools.partial(write_flow_batch, name="backward_flow",
+                                              file_template="backward_flow_{:05d}.npy")
+
 DEFAULT_WRITERS = {
     "rgb": write_rgb_batch,
     "rgba": write_rgba_batch,
@@ -314,8 +340,8 @@ DEFAULT_WRITERS = {
     "uv": write_uv_batch,
     "normal": write_normal_batch,
     "flow": write_flow_batch,
-    "forward_flow": write_forward_flow_batch,
-    "backward_flow": write_backward_flow_batch,
+    "forward_flow": write_forward_flow_batch_raw,
+    "backward_flow": write_backward_flow_batch_raw,
     "segmentation": write_segmentation_batch,
     "object_coordinates": write_coordinates_batch,
 }
