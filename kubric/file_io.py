@@ -340,8 +340,8 @@ DEFAULT_WRITERS = {
     "uv": write_uv_batch,
     "normal": write_normal_batch,
     "flow": write_flow_batch,
-    "forward_flow": write_forward_flow_batch_raw,
-    "backward_flow": write_backward_flow_batch_raw,
+    "forward_flow": write_forward_flow_batch, # write_forward_flow_batch_raw,
+    "backward_flow": write_backward_flow_batch, # write_backward_flow_batch_raw,
     "segmentation": write_segmentation_batch,
     "object_coordinates": write_coordinates_batch,
 }

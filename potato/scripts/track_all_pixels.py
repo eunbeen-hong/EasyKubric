@@ -198,35 +198,20 @@ def process_scene(scene_id, args, views):
         data = load_kubric_sequence(seq_dir, as_tf=True)
         image_res = data['video'].shape[1:3]
         
-        if args.all_pixels:
-            args.tracks_to_sample = image_res[0] * image_res[1]
-            results = add_tracks(
-                data=data,
-                train_size=image_res,
-                vflip=False,
-                random_crop=False,
-                tracks_to_sample=args.tracks_to_sample,
-                sampling_stride=1,
-                max_seg_id=25,
-                max_sampled_frac=1.0,
-                snap_to_occluder=False,
-                grid_frames=(0, 4, 8, 12, 16, 20),
-                grid_size=args.grid_size
-            )
-        else:
-            results = add_tracks(
-                data=data,
-                train_size=image_res,
-                vflip=False,
-                random_crop=False,
-                tracks_to_sample=args.tracks_to_sample,
-                sampling_stride=4,
-                max_seg_id=25,
-                max_sampled_frac=0.1,
-                snap_to_occluder=False,
-                grid_frames=(0, 4, 8, 12, 16, 20),
-                grid_size=args.grid_size
-            )
+        args.tracks_to_sample = image_res[0] * image_res[1]
+        results = add_tracks(
+            data=data,
+            train_size=image_res,
+            vflip=False,
+            random_crop=False,
+            tracks_to_sample=args.tracks_to_sample,
+            sampling_stride=1,
+            max_seg_id=25,
+            max_sampled_frac=1.0,
+            snap_to_occluder=False,
+            grid_frames=(0, 4, 8, 12, 16, 20),
+            grid_size=args.grid_size
+        )
 
         out_dir = os.path.join(args.out_dir, scene_id)
         os.makedirs(out_dir, exist_ok=True)

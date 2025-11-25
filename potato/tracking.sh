@@ -1,10 +1,9 @@
-data_root="/mnt/nvme1n1/event_data/kubric/"
+data_root="/mnt/data6/eunbeen/4d-recon/kubric/multiview/"
 
-tracks_dir="/mnt/nvme1n1/event_data/kubric/"
+tracks_dir="/mnt/data6/eunbeen/4d-recon/kubric/multiview/tracks/"
 
 exp_names=(
-    "240fps_no_blur_18proc"
-    "240fps_no_blur_18proc_2"
+    "scene0"
 )
 
 for exp in "${exp_names[@]}"; do
@@ -12,5 +11,6 @@ for exp in "${exp_names[@]}"; do
     PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python python potato/scripts/point_extracter.py \
         --data_dir "$data_root$exp" \
         --out_dir "$tracks_dir$exp" \
-        --n_procs 16
+        --n_procs 16 \
+        --all_pixels
 done

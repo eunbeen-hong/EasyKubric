@@ -1,20 +1,21 @@
-data_root="/mnt/nvme1n1/event_data/kubric/"
+data_root="/mnt/data6/eunbeen/4d-recon/kubric/multiview/"
 
-tracks_dir="/home/cvlab21/project/eunbeen/kubric/outputs/tracks/"
+tracks_dir="/mnt/data6/eunbeen/4d-recon/kubric/multiview/tracks/"
 
 exp_names=(
-    "0919"
+    "scene0"
 )
 
 for exp in "${exp_names[@]}"; do
     # Extract points
-    PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python python potato/scripts/point_extracter.py \
+    PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python python3 potato/scripts/point_extracter.py \
         --data_dir "$data_root$exp" \
-        --out_dir "$tracks_dir$exp"
+        --out_dir "$tracks_dir$exp" \
+        --all_pixels
 
     # Visualize tracks
     # !! Remove fps option to use input video's fps !!
-    python potato/scripts/visualizer.py \
+    python3 potato/scripts/visualizer.py \
         --fps 12 \
         --data_dir "$data_root$exp" \
         --tracks_dir "$tracks_dir$exp" \

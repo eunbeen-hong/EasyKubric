@@ -6,8 +6,8 @@ set -e
 CUDA_VISIBLE_DEVICES=0 ./potato/render_rgb_track.sh \
     ./potato/configs/rgb_track.json \
     /datasets/kubric/rgb_track \
-    2 \
-    2
+    5 \
+    5
 
 
 # ./potato/render.sh ./potato/configs/etap_simple.json /datasets/kubric/examples/etap_simple 3

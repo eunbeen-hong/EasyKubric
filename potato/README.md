@@ -70,6 +70,12 @@ conda activate kubric_track_eb
 
 `FIXME`: Using PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python is slow, solve protobuf version error.
 
+help: no module named 'mediapy'
+```
+    python -m pip install --upgrade pip setuptools wheel
+    python -c "import mediapy; print(mediapy.__version__)"
+```
+
 
 # 3. Docker clean up
 

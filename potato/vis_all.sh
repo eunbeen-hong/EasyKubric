@@ -1,11 +1,11 @@
-data_root="/mnt/nvme1n1/event_data/kubric/examples/"
+data_root="/mnt/data6/eunbeen/4d-recon/kubric/multiview/"
 
-vis_dir="/mnt/nvme1n1/event_data/kubric/examples/vis2/"
+tracks_dir="/mnt/data6/eunbeen/4d-recon/kubric/multiview/tracks/"
 
 exp_names=(
-    etap_complex
-    etap_simple
+    "scene0"
 )
+
 
 for exp in "${exp_names[@]}"; do
 
@@ -15,8 +15,8 @@ for exp in "${exp_names[@]}"; do
     # !! add --tracks_dir ${tracks_dir} for tracking vis !!
     python potato/scripts/visualizer.py \
         --data_dir ${data_root}${exp} \
+        --tracks_dir ${tracks_dir}${exp} \
         --output_dir "$vis_dir$exp" \
         --fps 5
-        --pair_vis
 
 done
