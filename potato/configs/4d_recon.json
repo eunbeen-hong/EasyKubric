@@ -11,6 +11,6 @@
   "frame_start": 1,
   "frame_end": 24,
   "resolution": "512x512",
-  "min_amb_light": 0.1,
+  "min_amb_light": 1.0,
   "max_amb_light": 1.0
 }

@@ -122,19 +122,19 @@ def write_raw_flow(data: np.array, filename: PathLike) -> None:
     Save optical flow as raw binary (.npy) without precision loss.
     The filename can end with .npy or .npz; the function auto-handles both.
     """
+    filename = Path(filename)
+    if filename.suffix != "npz" and filename.suffix != "npy":
+      # Default to .png
+      write_png(data, filename)
+
     assert data.ndim == 3 and data.shape[-1] == 2, f"Expected (H, W, 2), got {data.shape}"
 
-    filename = Path(filename)
     filename.parent.mkdir(parents=True, exist_ok=True)
 
     if filename.suffix == ".npz":
         np.savez_compressed(filename, flow=data.astype(np.float32))
     elif filename.suffix == ".npy":
         np.save(filename, data.astype(np.float32))
-    else:
-        # Default to .npy if user didn’t specify an extension
-        np.save(str(filename) + ".npy", data.astype(np.float32))
-
 
 def write_palette_png(data: np.array, filename: PathLike,
                       palette: np.ndarray = None):
