@@ -5,7 +5,7 @@ set -e
 # Run render.sh with CUDA_VISIBLE_DEVICES
 CUDA_VISIBLE_DEVICES=0 ./potato/render_4d_recon.sh \
     ./potato/configs/4d_recon.json \
-    /datasets/multiview/1213 \
+    /datasets/multiview/1218 \
     3 \
     3
 

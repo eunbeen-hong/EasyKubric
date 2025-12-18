@@ -308,12 +308,32 @@ def write_flow_batch(data, directory, file_template="flow_{:05d}.png", name="flo
   min_value = np.min(data)
   max_value = np.max(data)
   scaling = {"min": min_value.item(), "max": max_value.item()}
-  # data = (data - min_value) * 65535 / (max_value - min_value)
-  # data = data.astype(np.uint16)
+  data = (data - min_value) * 65535 / (max_value - min_value)
+  data = data.astype(np.uint16)
+  multi_write_image(data, path_template, write_fn=write_png,
+                    max_write_threads=max_write_threads)
+
+  if range_file_path.exists():
+    ranges = read_json(range_file_path)
+  else:
+    ranges = {}
+  ranges[name] = scaling
+  write_json(ranges, range_file_path)
+
+
+def write_flow_batch_raw(data, directory, file_template="flow_{:05d}.png", name="flow",
+                     max_write_threads=16, range_file="data_ranges.json"):
+  assert data.ndim == 4 and data.shape[-1] == 2, data.shape
+  assert data.dtype in [np.float32, np.float64], data.dtype
+  directory = as_path(directory)
+  path_template = str(directory / file_template)
+  range_file_path = directory / range_file
+  min_value = np.min(data)
+  max_value = np.max(data)
+  scaling = {"min": min_value.item(), "max": max_value.item()}
+  
   multi_write_image(data, path_template, write_fn=write_raw_flow,
                     max_write_threads=max_write_threads)
-  # multi_write_image(data, path_template, write_fn=write_png,
-  #                   max_write_threads=max_write_threads)
 
   if range_file_path.exists():
     ranges = read_json(range_file_path)
@@ -328,9 +348,9 @@ write_forward_flow_batch = functools.partial(write_flow_batch, name="forward_flo
 write_backward_flow_batch = functools.partial(write_flow_batch, name="backward_flow",
                                               file_template="backward_flow_{:05d}.png")
 
-write_forward_flow_batch_raw = functools.partial(write_flow_batch, name="forward_flow",
+write_forward_flow_batch_raw = functools.partial(write_flow_batch_raw, name="forward_flow",
                                              file_template="forward_flow_{:05d}.npy")
-write_backward_flow_batch_raw = functools.partial(write_flow_batch, name="backward_flow",
+write_backward_flow_batch_raw = functools.partial(write_flow_batch_raw, name="backward_flow",
                                               file_template="backward_flow_{:05d}.npy")
 
 DEFAULT_WRITERS = {
